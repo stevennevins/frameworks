@@ -1,25 +1,35 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.23;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-contract NFT is ERC721{
-    uint256 public nextTokenId;
-    address public minter;
-    constructor(string memory name, string memory symbol) ERC721(name, symbol){}
+import {LibString} from "solady/utils/LibString.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-    modifier onlyMinter() {
-        require(msg.sender == minter, "Not Minter");
-        _;
+import {INFT} from "./INFT.sol";
+
+contract NFT is INFT, ERC721, Ownable {
+    using LibString for uint256;
+
+    address minter;
+
+    constructor() ERC721("Cryptoadz", "TOADZ") Ownable(msg.sender) {}
+
+    function mint(address _to, uint256 _tokenId) external payable {
+        if (msg.sender != minter) revert();
+        _mint(_to, _tokenId);
     }
 
-    function updateMinter(address _minter) public {
+    function updateMinter(address _minter) external onlyOwner {
         minter = _minter;
     }
 
-    function mint(address to, uint256 amount) external {
-        for (uint256 i; i < amount; i++){
-            _mint(to, nextTokenId++);
-        }
+    function tokenURI(
+        uint256 _tokenId
+    ) public pure override(ERC721, INFT) returns (string memory) {
+        return
+            string.concat(
+                "https://arweave.net/OVAmf1xgB6atP0uZg1U0fMd0Lw6DlsVqdvab-WTXZ1Q/",
+                _tokenId.toString()
+            );
     }
 }
-
