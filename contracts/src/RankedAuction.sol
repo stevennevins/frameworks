@@ -5,26 +5,29 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {NFT} from "./NFT.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+import {IIdRegistry} from "./interfaces/IIdRegistry.sol";
 import {IRankedAuction, LinkedListLib, BidInfo, LinkedList} from "./interfaces/IRankedAuction.sol";
 
 contract RankedAuction is IRankedAuction, Ownable {
+    address public registry;
     address public token;
     uint256 public supply;
     uint256 public startTime;
     uint256 public endTime;
     uint256 public minReserve;
-
+    LinkedList public bidList;
     mapping(address => uint256) public balances;
     mapping(address => uint256) public fIds;
-    LinkedList public bidList;
 
     constructor(
+        address _registry,
         address _token,
         uint256 _supply,
         uint256 _startTime,
         uint256 _endTime,
         uint256 _minReserve
     ) Ownable(msg.sender) {
+        registry = _registry;
         setToken(_token);
         setSupply(_supply);
         setTime(_startTime, _endTime);
@@ -32,12 +35,18 @@ contract RankedAuction is IRankedAuction, Ownable {
     }
 
     function bid(uint256 _fId) external payable {
-        if (fIds[msg.sender] != _fId || fIds[msg.sender] != 0)
-            revert InvalidFId();
-        if (fIds[msg.sender] == 0) fIds[msg.sender] == _fId;
-        if (block.timestamp < startTime || block.timestamp >= endTime) {
-            revert SaleInactive();
+        if (fIds[msg.sender] != _fId) {
+            if (fIds[msg.sender] == 0) {
+                fIds[msg.sender] == _fId;
+            } else {
+                revert InvalidFId();
+            }
         }
+
+        if (fIds[msg.sender] == 0)
+            if (block.timestamp < startTime || block.timestamp >= endTime) {
+                revert SaleInactive();
+            }
         uint256 minBid = (bidList.bids[bidList.head].amount * 10_500) / 10_000;
         if (
             msg.value < minReserve ||
