@@ -10,6 +10,7 @@ const app = new Frog({
 })
 
 app.frame('/', (c) => {
+  console.log("Root:", c)
   return c.res({
     action: '/finish',
     image: (
@@ -25,6 +26,7 @@ app.frame('/', (c) => {
 })
  
 app.frame('/finish', (c) => {
+  console.log("Finish:", c)
   const { transactionId } = c
   return c.res({
     image: (
