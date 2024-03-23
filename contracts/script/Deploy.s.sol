@@ -12,7 +12,7 @@ contract Deploy is Script {
     uint256 endTime;
     uint256 price;
 
-    function setup() public {
+    function setUp() public {
         supply = 20;
         startTime = block.timestamp;
         endTime = block.timestamp + 86400;
