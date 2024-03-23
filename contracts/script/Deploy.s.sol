@@ -8,7 +8,7 @@ contract Deploy is Script {
 
     function run() public {
         vm.broadcast();
-        new NFT();
+        new NFT("Nouns Collective", "Nouns");
 
     }
 }
