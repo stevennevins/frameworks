@@ -10,7 +10,7 @@ const app = new Frog({
 })
 
 app.frame('/', (c) => {
-  console.log("Root:", c)
+  console.log("root context:", c)
   return c.res({
     action: '/finish',
     image: (
@@ -26,18 +26,19 @@ app.frame('/', (c) => {
 })
  
 app.frame('/finish', (c) => {
-  console.log("Finish:", c)
+  console.log("finish context:", c)
   const { transactionId } = c
   return c.res({
     image: (
       <div style={{ color: 'white', display: 'flex', fontSize: 60 }}>
-        Transaction ID:
+        Transaction ID: {transactionId || "undefined"}
       </div>
     )
   })
 })
  
 app.transaction('/send', (c) => {
+  console.log("send context:", c)
   const { inputText } = c
   // Send transaction response.
   return c.send({
