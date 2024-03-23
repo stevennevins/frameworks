@@ -9,10 +9,57 @@ const app = new Frog({
   hub: neynar({ apiKey: 'NEYNAR_FROG_FM' })
 })
 
+
+const renderTableRows = (data) => {
+  return data.map((item) => (
+    <tr key={item.rank}>
+      <td>{item.rank}</td>
+      <td>{item.bidder}</td>
+      <td>{item.bid}</td>
+    </tr>
+  ));
+};
+
+const renderBidderTable = (data) => {
+  return (
+    <table style={{ color: 'white', fontSize: 30}}>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Bidder</th>
+          <th>Bid</th>
+        </tr>
+      </thead>
+      <tbody>{renderTableRows(data)}</tbody>
+    </table>
+  );
+};
+// Function to render the table rows from the data
+
 app.frame('/', (c) => {
-  console.log("root context:", c)
+
+const data = [
+        { rank: 1, bidder: "Alice", bid: 100 },
+        { rank: 2, bidder: "Bob", bid: 90 },
+        { rank: 3, bidder: "Charlie", bid: 80 },
+        { rank: 4, bidder: "Dana", bid: 70 },
+        { rank: 5, bidder: "Eve", bid: 60 },
+    ];
+
+    return c.res({
+        image: (
+        <div style={{ display: 'flex' }}>
+        {renderBidderTable(data)}
+        </div>
+        )
+    })
+})
+
+
+
+app.frame('/send-eth', (c) => {
   return c.res({
-    action: '/finish',
+    action: '/send-eth-finish',
     image: (
       <div style={{ color: 'white', display: 'flex', fontSize: 60 }}>
         Perform a transaction
@@ -20,12 +67,12 @@ app.frame('/', (c) => {
     ),
     intents: [
       <TextInput placeholder="Value (ETH)" />,
-      <Button.Transaction target="/send">Send Ether</Button.Transaction>,
+      <Button.Transaction target="/tx-send-eth">Send Ether</Button.Transaction>,
     ]
   })
 })
  
-app.frame('/finish', (c) => {
+app.frame('/send-eth-finish', (c) => {
   console.log("finish context:", c)
   const { transactionId } = c
   return c.res({
@@ -37,8 +84,7 @@ app.frame('/finish', (c) => {
   })
 })
  
-app.transaction('/send', (c) => {
-  console.log("send context:", c)
+app.transaction('/tx-send-eth', (c) => {
   const { inputText } = c
   // Send transaction response.
   return c.send({
