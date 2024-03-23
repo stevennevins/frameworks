@@ -5,18 +5,19 @@ import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-import {INFT} from "./INFT.sol";
+import {INFT} from "./interfaces/INFT.sol";
 
 contract NFT is INFT, ERC721, Ownable {
     using LibString for uint256;
 
+    uint256 counter;
     address minter;
 
     constructor() ERC721("Cryptoadz", "TOADZ") Ownable(msg.sender) {}
 
-    function mint(address _to, uint256 _tokenId) external payable {
+    function mint(address _to) external payable {
         if (msg.sender != minter) revert();
-        _mint(_to, _tokenId);
+        _mint(_to, ++counter);
     }
 
     function updateMinter(address _minter) external onlyOwner {
