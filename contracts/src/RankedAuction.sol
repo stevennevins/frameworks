@@ -15,6 +15,7 @@ contract RankedAuction is IRankedAuction, Ownable {
     uint256 public minReserve;
 
     mapping(address => uint256) public balances;
+    mapping(address => uint256) public fIds;
     LinkedList public bidList;
 
     constructor(
@@ -30,7 +31,10 @@ contract RankedAuction is IRankedAuction, Ownable {
         setReserve(_minReserve);
     }
 
-    function bid() external payable {
+    function bid(uint256 _fId) external payable {
+        if (fIds[msg.sender] != _fId || fIds[msg.sender] != 0)
+            revert InvalidFId();
+        if (fIds[msg.sender] == 0) fIds[msg.sender] == _fId;
         if (block.timestamp < startTime || block.timestamp >= endTime) {
             revert SaleInactive();
         }

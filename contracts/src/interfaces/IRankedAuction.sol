@@ -7,10 +7,11 @@ interface IRankedAuction {
     error AlreadyClaimed();
     error InsufficientBalance();
     error InsufficientBid();
+    error InvalidFId();
     error SaleInactive();
     error SaleNotOver();
 
-    function bid() external payable;
+    function bid(uint256 _fId) external payable;
 
     function settle() external;
 

@@ -11,25 +11,26 @@ contract Deploy is Script {
     uint256 startTime;
     uint256 endTime;
     uint256 price;
+    address token;
 
     function setUp() public {
         supply = 20;
         startTime = block.timestamp;
         endTime = block.timestamp + 86400;
         price = 0.0001 ether;
+        token = 0xcb2e1d15c237C0A356dA9C31fd149170190526C5;
     }
 
     function run() public {
         vm.startBroadcast();
-        NFT nft = new NFT();
         RankedAuction auction = new RankedAuction(
-            address(nft),
+            token,
             supply,
             startTime,
             endTime,
             price
         );
-        nft.updateMinter(address(auction));
+        NFT(token).updateMinter(address(auction));
         vm.stopBroadcast();
     }
 }
