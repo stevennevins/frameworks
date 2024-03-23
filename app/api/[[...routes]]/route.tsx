@@ -2,13 +2,17 @@
 import { Button, Frog, TextInput, parseEther } from 'frog'
 import { neynar } from 'frog/hubs'
 import { handle } from 'frog/next'
+import nftData from '../../abi/NFT.json'
+import rankedAuctionData from '../../abi/RankedAuction.json'
+
+const NFT_CONTRACT = '0xcb2e1d15c237C0A356dA9C31fd149170190526C5'
+const RANKED_AUCTION_CONTRACT = '0x7Ca3870ea6eB34Bf7a0288d533252C87D0B76AF7'
 
 const app = new Frog({
   assetsPath: '/',
   basePath: '/api',
   hub: neynar({ apiKey: 'NEYNAR_FROG_FM' })
 })
-
 
 const renderTableRows = (data) => {
   return data.map((item) => (
@@ -62,17 +66,6 @@ const data = [
     })
 })
 
-app.transaction('/bid', (c) => {
-  const { inputText } = c
-  // Send transaction response.
-  return c.send({
-    chainId: 'eip155:10',
-    to: '0x232E02988970e8aB920c83964cC7922d9C282DCA',
-    value: parseEther(inputText!!),
-  })
-})
-
-
 
 app.frame('/send-eth', (c) => {
   return c.res({
@@ -108,6 +101,19 @@ app.transaction('/tx-send-eth', (c) => {
     chainId: 'eip155:10',
     to: '0x232E02988970e8aB920c83964cC7922d9C282DCA',
     value: parseEther(inputText!!),
+  })
+})
+
+app.transaction('/bid', (c) => {
+  const { frameData, inputText } = c
+  const { fid } = frameData
+  return c.contract({
+    abi: rankedAuctionData["abi"],
+    chainId: 'eip155:10',
+    functionName: 'bid',
+    args: [fid],
+    to: RANKED_AUCTION_CONTRACT,
+    value: parseEther(inputText)
   })
 })
 
