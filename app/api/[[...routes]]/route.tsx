@@ -47,12 +47,29 @@ const data = [
     ];
 
     return c.res({
+        action: '',
         image: (
         <div style={{ display: 'flex' }}>
         {renderBidderTable(data)}
         </div>
-        )
+        ),
+        intents: [
+            <Button action="/refresh">Refresh</Button>,
+            <TextInput placeholder="Bit amount"/>,
+            <Button.Transaction target="/bid">Bid</Button.Transaction>,
+            <Button action="/view">View NFTs</Button>,
+        ]
     })
+})
+
+app.transaction('/bid', (c) => {
+  const { inputText } = c
+  // Send transaction response.
+  return c.send({
+    chainId: 'eip155:10',
+    to: '0x232E02988970e8aB920c83964cC7922d9C282DCA',
+    value: parseEther(inputText!!),
+  })
 })
 
 
