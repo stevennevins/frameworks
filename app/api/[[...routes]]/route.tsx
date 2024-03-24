@@ -45,7 +45,7 @@ const renderBidderTable = (data: any) => {
 // Function to render the table rows from the data
 
 app.frame('/', (c) => {
-    const listBidsData = getListBidsData();
+    const listBidsData = getReadData();
     console.log("Bid Data:", listBidsData);
 
     const data = [
@@ -124,19 +124,30 @@ app.transaction('/bid', (c) => {
 })
 
 async function getListBidsData() {
-  const auctionContract = process.env.RANKED_AUCTION_CONTRACT || '';
   const publicClient = createPublicClient({ 
     chain: optimismSepolia,
     transport: http()
   })
 
-  const data = await publicClient.readContract({
-    address: RANKED_AUCTION_CONTRACT,
-    abi: rankedAuctionData.abi,
-    functionName: 'getListBids',
-  })
+  try {
+    const data = await publicClient.readContract({
+      address: RANKED_AUCTION_CONTRACT,
+      abi: rankedAuctionData.abi,
+      functionName: 'getListBids',
+    })
+    return data
+  } catch (error) {
+    console.error("Error fetching bid data:", error)
+  }
+}
 
-  return data;
+async function getReadData() {
+  try {
+    const data = await getListBidsData()
+    console.log(data)
+  } catch (error) {
+    console.log("Error reading data:", error)
+  }
 }
 
 export const GET = handle(app)
