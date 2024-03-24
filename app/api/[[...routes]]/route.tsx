@@ -46,7 +46,7 @@ const renderBidderTable = (data: any) => {
 
 app.frame('/', (c) => {
     const listBidsData = getListBidsData();
-    console.log(listBidsData);
+    console.log("Bid Data:", listBidsData);
 
     const data = [
         { rank: 1, bidder: "Alice", bid: 100 },
@@ -130,11 +130,13 @@ async function getListBidsData() {
     transport: http()
   })
 
-  const readData = await publicClient.readContract({
+  const data = await publicClient.readContract({
     address: RANKED_AUCTION_CONTRACT,
     abi: rankedAuctionData.abi,
     functionName: 'getListBids',
   })
+
+  return data;
 }
 
 export const GET = handle(app)
