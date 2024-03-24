@@ -2,6 +2,10 @@
 import { Button, Frog, TextInput, parseEther } from 'frog'
 import { neynar } from 'frog/hubs'
 import { handle } from 'frog/next'
+import { createPublicClient, createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts'
+import { optimismSepolia } from 'viem/chains';
+
 import nftData from '../../abi/NFT.json'
 import rankedAuctionData from '../../abi/RankedAuction.json'
 
@@ -14,8 +18,8 @@ const app = new Frog({
   hub: neynar({ apiKey: 'NEYNAR_FROG_FM' })
 })
 
-const renderTableRows = (data) => {
-  return data.map((item) => (
+const renderTableRows = (data: any) => {
+  return data.map((item: any) => (
     <tr key={item.rank}>
       <td>{item.rank}</td>
       <td>{item.bidder}</td>
@@ -24,7 +28,7 @@ const renderTableRows = (data) => {
   ));
 };
 
-const renderBidderTable = (data) => {
+const renderBidderTable = (data: any) => {
   return (
     <table style={{ color: 'white', fontSize: 30}}>
       <thead>
@@ -41,8 +45,10 @@ const renderBidderTable = (data) => {
 // Function to render the table rows from the data
 
 app.frame('/', (c) => {
+    const listBidsData = getListBidsData();
+    console.log(listBidsData);
 
-const data = [
+    const data = [
         { rank: 1, bidder: "Alice", bid: 100 },
         { rank: 2, bidder: "Bob", bid: 90 },
         { rank: 3, bidder: "Charlie", bid: 80 },
@@ -106,16 +112,30 @@ app.transaction('/tx-send-eth', (c) => {
 
 app.transaction('/bid', (c) => {
   const { frameData, inputText } = c
-  const { fid } = frameData
+  // const { castId, fid, messageHash, network, timestamp, url } = frameData
   return c.contract({
     abi: rankedAuctionData["abi"],
     chainId: 'eip155:10',
     functionName: 'bid',
-    args: [fid],
+    args: [1],
     to: RANKED_AUCTION_CONTRACT,
-    value: parseEther(inputText)
+    value: parseEther(inputText!!)
   })
 })
+
+async function getListBidsData() {
+  const auctionContract = process.env.RANKED_AUCTION_CONTRACT || '';
+  const publicClient = createPublicClient({ 
+    chain: optimismSepolia,
+    transport: http()
+  })
+
+  const readData = await publicClient.readContract({
+    address: RANKED_AUCTION_CONTRACT,
+    abi: rankedAuctionData.abi,
+    functionName: 'getListBids',
+  })
+}
 
 export const GET = handle(app)
 export const POST = handle(app)
